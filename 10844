@@ -1,0 +1,30 @@
+import java.util.*;
+import java.math.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt();
+        BigInteger[][] stairNum = new BigInteger[N+1][10];
+
+        stairNum[1][0] = new BigInteger("0");
+        for (int i = 1; i <= 9; i++) {
+            stairNum[1][i] = new BigInteger("1");
+        }
+            
+        for (int i = 2; i <= N; i++) {
+            stairNum[i][0] = stairNum[i-1][1];
+            for (int j = 1; j <= 8; j++) {
+                stairNum[i][j] = stairNum[i-1][j-1].add(stairNum[i-1][j+1]);
+            }
+            stairNum[i][9] = stairNum[i-1][8];
+        }
+
+        BigInteger ans = new BigInteger("0");
+        for (int i = 0; i <= 9; i++) {
+            ans = ans.add(stairNum[N][i]);
+        }
+
+        System.out.println(ans.remainder(new BigInteger("1000000000")));
+    }
+}
