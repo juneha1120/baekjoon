@@ -1,0 +1,41 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+
+		int[][] schedule = new int[N+2][2];
+		int[] toOptimal = new int[N+2];
+
+		for (int i = 1; i <= N; i++) {
+			schedule[i][0] = sc.nextInt();
+			schedule[i][1] = sc.nextInt();
+		}
+
+		int maxP = Integer.MIN_VALUE;
+		for (int i = 1; i <= N; i++) {
+			if (toOptimal[i] > maxP) {
+				maxP = toOptimal[i];
+			} else {
+				toOptimal[i] = maxP;
+			}
+			
+			int currT = schedule[i][0];
+			int currP = schedule[i][1];
+
+			if (i + currT <= N+1) {
+				toOptimal[i + currT] = Math.max(toOptimal[i + currT], toOptimal[i] + currP);
+			}
+		}
+
+		if (toOptimal[N+1] < maxP) toOptimal[N+1] = maxP;
+		
+		// for (int i = 1; i <= N+1; i++) {
+		// 	System.out.println(toOptimal[i]);
+		// }
+
+		System.out.println(toOptimal[N+1]);
+	}
+}
