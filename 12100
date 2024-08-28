@@ -1,0 +1,181 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+	public static int N;
+
+	public static int[][] copyBoard(int[][] board) {
+		int[][] copy = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				copy[i][j] = board[i][j];
+			}
+		}
+
+		return copy;
+	}
+	
+	public static void flipBoard(int[][] board) {
+		int[][] flippedBoard = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				flippedBoard[i][j] = board[i][N - 1 - j];
+			}
+		}
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				board[i][j] = flippedBoard[i][j];
+			}
+		}
+	}
+
+	public static void transposeBoard(int[][] board) {
+		int[][] transposedBoard = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				transposedBoard[j][i] = board[i][j];
+			}
+		}
+		
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				board[i][j] = transposedBoard[i][j];
+			}
+		}
+	}
+
+	public static void move(int[][] board) {
+		for (int i = 0; i < N; i++) {
+			List<Integer> blocks = new ArrayList<>();
+
+			for (int j = 0; j < N; j++) {
+				if (board[i][j] != 0) {
+					blocks.add(board[i][j]);
+				}
+			}
+
+			List<Integer> addedBlocks = new ArrayList<>();
+			int ind = 0;
+
+			while (ind < blocks.size()) {
+				if ((ind < blocks.size() - 1) && (blocks.get(ind).equals(blocks.get(ind + 1)))) {
+					addedBlocks.add(blocks.get(ind) * 2);
+					ind += 2;
+				} else {
+					addedBlocks.add(blocks.get(ind));
+					ind += 1;
+				}
+			}
+
+			for (int j = 0; j < addedBlocks.size(); j++) {
+				board[i][j] = addedBlocks.get(j);
+			}
+
+			for (int j = addedBlocks.size(); j < N; j++) {
+				board[i][j] = 0;
+			}
+		}
+	}
+
+	public static void move(int[][] board, int dir) {
+		if (dir == 0) {
+			transposeBoard(board);
+			move(board);
+			transposeBoard(board);
+		} else if (dir == 1) {
+			transposeBoard(board);
+			flipBoard(board);
+			move(board);
+			flipBoard(board);
+			transposeBoard(board);
+		} else if (dir == 2) {
+			move(board);
+		} else {
+			flipBoard(board);
+			move(board);
+			flipBoard(board);
+		}
+	}
+
+	public static int findMax(int[][] board) {
+		int max = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (board[i][j] > max) {
+					max = board[i][j];
+				}
+			}
+		}
+
+		return max;
+	}
+
+	// public static void printBoard(int[][] board) {
+	// 	for (int i = 0; i < N; i++) {
+	// 		for (int j = 0; j < N; j++) {
+	// 			System.out.print(board[i][j]);
+	// 			for (int a = 0; a < 4 - Integer.toString(board[i][j]).length(); a++) {
+	// 				System.out.print(" ");
+	// 			}
+	// 		}
+	// 		System.out.println();
+	// 	}
+	// 	System.out.println();
+	// }
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		N = sc.nextInt();
+
+		int[][] board = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				board[i][j] = sc.nextInt();
+			}
+		}
+
+		sc.close();
+
+		if (N == 1) {
+			System.out.println(board[0][0]);
+			return;
+		}
+		
+		int[][][] startState = new int[2][N][N];
+		startState[0][0][0] = 0;
+		startState[1] = board;
+
+		Stack<int[][][]> stack = new Stack<>();
+		stack.push(startState);
+
+		int maxBlock = 0;
+		while (!stack.isEmpty()) {
+			int[][][] currState = stack.pop();
+			int currCount = currState[0][0][0];
+			int[][] currBoard = currState[1];
+
+			int currMax = findMax(currBoard);
+			if (currMax > maxBlock) {
+				maxBlock = currMax;
+			}
+
+			if (currCount == 5) {
+				continue;
+			}
+
+			for (int i = 0; i < 4; i++) {
+				int[][] currCopy = copyBoard(currBoard);
+				move(currCopy, i);
+
+				int[][][] newState = new int[2][N][N];
+				newState[0][0][0] = currCount + 1;
+				newState[1] = currCopy;
+
+				stack.push(newState);
+			}
+		}
+
+		System.out.print(maxBlock);
+	}
+}
