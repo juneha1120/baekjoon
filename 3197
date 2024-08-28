@@ -1,0 +1,30 @@
+import java.util.*;
+
+public class Main {
+	public static int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+	
+	public static void melt(char[][] lake, LinkedList<int[2]> icePosArr) {
+		
+	}
+	
+  	public static void main(String[] args) {
+    	Scanner sc = new Scanner(System.in);
+		int R = sc.nextInt();
+		int C = sc.nextInt();
+
+		char[][] lake = new char[R][C];
+		ArrayList<int[2]> swanPosArr = new ArrayList<>();
+		LinkedList<int[2]> icePosArr = new LinkedList<>();
+		for (int i = 0; i < R; i++) {
+			for (int j = 0; j < C; j++) {
+				lake[i][j] = sc.next();
+				if (lake[i][j] == 'L') {
+					swanPosArr.add(new int[] {i,j});
+					lake[i][j] = '.';
+				} else if (lake[i][j] == 'X') {
+					icePosArr.add(new int[] {i,j});
+				}
+			}
+		}
+  	}
+}
