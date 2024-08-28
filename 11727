@@ -1,0 +1,18 @@
+import java.util.*;
+import java.math.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		BigInteger[] dp = new BigInteger[1001];
+
+		dp[1] = new BigInteger("1");
+		dp[2] = new BigInteger("3");
+		for (int i = 3; i <= N; i++) {
+			dp[i] = dp[i-1].add(dp[i-2].multiply(new BigInteger("2")));
+		}
+
+		System.out.println(dp[N].remainder(new BigInteger("10007")));
+	}
+}
