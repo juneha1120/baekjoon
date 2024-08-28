@@ -1,0 +1,26 @@
+import java.util.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		boolean[] winner = new boolean[1001];
+
+		winner[0] = false;
+		winner[1] = true;
+		winner[2] = false;
+		winner[3] = true;
+		winner[4] = true;
+		winner[5] = true;
+		winner[6] = true;
+		winner[7] = false;
+			
+		for (int i = 8; i <= N; i++) {
+			if (!winner[i-1] || !winner[i-3] || !winner[i-4]) {
+				winner[i] = true;
+			}
+		}
+
+		System.out.println(winner[N] ? "SK" : "CY");
+	}
+} 
