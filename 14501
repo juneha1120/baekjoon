@@ -1,0 +1,34 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+  	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+
+		int[][] schedule = new int[N+1][2];
+		int[][] fromToOptimal = new int[N+2][N+2];
+		int[] toOptimal = new int[N+2];
+		
+		for (int i = 1; i <= N; i++) {
+			schedule[i][0] = sc.nextInt();
+			schedule[i][1] = sc.nextInt();
+		}
+
+		for (int i = 1; i <= N; i++) {
+			if (i + schedule[i][0] <= N+1) {
+				fromToOptimal[i][i + schedule[i][0]] = schedule[i][1];
+			}
+		}
+
+		for (int i = 2; i <= N+1; i++) {
+			for (int j = 1; j < i; j++) {
+				if (toOptimal[j] + fromToOptimal[j][i] > toOptimal[i]) {
+					toOptimal[i] = toOptimal[j] + fromToOptimal[j][i];
+				}
+			}
+		}
+
+		System.out.println(toOptimal[N+1]);
+  	}
+}
