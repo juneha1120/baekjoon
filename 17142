@@ -1,0 +1,209 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+	public static int N, M;
+	public static String EMPTY = ".", WALL = "-", ACTIVE = "0", INACTIVE = "*";
+	public static int[][] moves = new int[][] {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+	public static String[][] copyLab(String[][] lab) {
+		String[][] copy = new String[N][N];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				copy[i][j] = lab[i][j];
+			}
+		}
+		return copy;
+	}
+
+	public static void activate(String[][] lab, List<int[]> viruses) {
+		for (int i = 0; i < M; i++) {
+			lab[viruses.get(i)[0]][viruses.get(i)[1]] = ACTIVE;
+		}
+	}
+
+	public static void simulate(String[][] lab, int[] startState) {
+		Queue<int[]> queue = new LinkedList<>();
+		queue.add(startState);
+
+		while (!queue.isEmpty()) {
+			int[] currState = queue.poll();
+			int currRow = currState[0];
+			int currCol = currState[1];
+			Integer currTime = currState[2];
+
+			for (int i = 0; i < 4; i++) {
+				int newRow = currRow + moves[i][0];
+				int newCol = currCol + moves[i][1];
+				Integer newTime = currTime + 1;
+
+				if (N > newRow && newRow >= 0 && N > newCol && newCol >= 0) {
+					if (lab[newRow][newCol] == EMPTY || 
+					   (lab[newRow][newCol] != WALL && lab[newRow][newCol] != ACTIVE && 
+						lab[newRow][newCol] != INACTIVE && Integer.parseInt(lab[newRow][newCol]) > newTime)) {
+						lab[newRow][newCol] = Integer.toString(newTime);
+						queue.add(new int[] {newRow, newCol, newTime});
+					}
+				}
+			}
+		}
+	}
+
+	public static void simulateInactive(String[][] lab) {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (lab[i][j] == INACTIVE) {
+					Integer minTime = Integer.MAX_VALUE;
+
+					for (int k = 0; k < 4; k++) {
+						int newRow = i + moves[k][0];
+						int newCol = j + moves[k][1];
+						
+						if (N > newRow && newRow >= 0 && N > newCol && newCol >= 0) {
+							if (lab[newRow][newCol] != WALL && lab[newRow][newCol] != EMPTY && 
+								lab[newRow][newCol] != INACTIVE && 
+								Integer.parseInt(lab[newRow][newCol]) < minTime) {
+								minTime = Integer.parseInt(lab[newRow][newCol]);
+							}
+						}
+					}
+					
+					if (!minTime.equals(Integer.MAX_VALUE)) {
+						lab[i][j] = Integer.toString(minTime + 1);
+						simulate(lab, new int[] {i, j, minTime + 1});
+					}
+				}
+			}
+		}
+	}
+
+	public static boolean emptyExists(String[][] lab) {
+		boolean exists = false;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (lab[i][j] == EMPTY) {
+					exists = true;
+				}
+			}
+		}
+
+		return exists;
+	}
+
+	public static boolean inactiveExists(String[][] lab) {
+		boolean exists = false;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (lab[i][j] == INACTIVE) {
+					exists = true;
+				}
+			}
+		}
+
+		return exists;
+	}
+
+	public static boolean areSame(String[][] lab1, String[][] lab2) {
+		boolean same = true;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (lab1[i][j] != lab2[i][j]) {
+					same = false;
+				}
+			}
+		}
+
+		return same;
+	}
+
+	public static int getTime(String[][] lab) {
+		int time = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (lab[i][j] != WALL && lab[i][j] != INACTIVE && Integer.parseInt(lab[i][j]) > time) {
+					time = Integer.parseInt(lab[i][j]);
+				}
+			}
+		}
+		
+		return time;
+	}
+
+	public static void printLab(String[][] lab) {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				System.out.print(lab[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
+	public static void getCombinations(List<int[]> arr, int ind, int M, List<int[]> curr, List<List<int[]>> result) {
+		if (curr.size() == M) {
+			result.add(new ArrayList<>(curr));
+			return;
+		}
+
+		for (int i = ind; i < arr.size(); i++) {
+			curr.add(arr.get(i));
+			getCombinations(arr, i + 1, M, curr, result);
+			curr.remove(curr.size() - 1);
+		}
+	}
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		N = sc.nextInt();
+		M = sc.nextInt();
+		String[][] lab = new String[N][N];
+		List<int[]> viruses = new ArrayList<>();
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				int curr = sc.nextInt();
+				if (curr == 0) { lab[i][j] = EMPTY; }
+				else if (curr == 1) { lab[i][j] = WALL;}
+				else {
+					lab[i][j] = INACTIVE;
+					viruses.add(new int[] {i, j});
+				}
+			}
+		}
+		sc.close();
+
+		List<List<int[]>> virusCombs = new ArrayList<>();
+		getCombinations(viruses, 0, M, new ArrayList<>(), virusCombs);
+		
+		Integer minTime = Integer.MAX_VALUE;
+		for (int i = 0; i < virusCombs.size(); i++) {
+			String[][] currLab = copyLab(lab);
+			List<int[]> currComb = virusCombs.get(i);
+			activate(currLab, currComb);
+
+			for (int j = 0; j < currComb.size(); j++) {
+				int[] startState = new int[] {currComb.get(j)[0], currComb.get(j)[1], 0};
+				simulate(currLab, startState);
+			}
+
+			if (emptyExists(currLab)) {
+				while (inactiveExists(currLab)) {
+					String[][] before = copyLab(currLab);
+					simulateInactive(currLab);
+					if (areSame(before, currLab)) {
+						break;
+					}
+				}
+			}
+
+			if (!emptyExists(currLab)) {
+				int currTime = getTime(currLab);
+				if (currTime < minTime) { minTime = currTime; }
+			}
+			
+			// printLab(currLab);
+		}
+
+		System.out.println((minTime.equals(Integer.MAX_VALUE)) ? -1 : minTime);
+	}
+}
