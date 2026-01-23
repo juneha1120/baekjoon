@@ -1,0 +1,43 @@
+import java.util.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+
+		int[] A = new int[N+1];
+		ArrayList<Integer>[] dp = new ArrayList[N+1];
+		for (int i = 1; i <= N; i++) {
+			A[i] = sc.nextInt();
+		}
+
+		dp[1] = new ArrayList<>();
+		dp[1].add(A[1]);
+		ArrayList<Integer> LIS = dp[1];
+
+		for (int i = 2; i <= N; i++) {
+			dp[i] = new ArrayList<>();
+			dp[i].add(A[i]);
+			for (int j = i-1; j >= 1; j--) {
+				if (A[i] > A[j]) {
+					if (dp[j].size() + 1 > dp[i].size()) {
+						dp[i] = new ArrayList<>();
+						dp[i].addAll(dp[j]);
+						dp[i].add(A[i]);
+					}
+				}
+			}	
+
+			// System.out.println("i = " + i + " : " + dp[i]);
+			if (dp[i].size() > LIS.size()) {
+				LIS = new ArrayList<>();
+				LIS.addAll(dp[i]);
+			}
+		}
+
+		System.out.println(LIS.size());
+		for (int i = 0; i < LIS.size(); i++) {
+			System.out.print(LIS.get(i) + " ");
+		}
+	}
+}

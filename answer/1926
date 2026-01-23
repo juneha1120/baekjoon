@@ -1,0 +1,76 @@
+import java.util.*;
+
+public class Main {
+    public static int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+
+    public static int[] findDrawing(int[][] drawing, LinkedList<int[]> startPosList) {
+        while (!startPosList.isEmpty()) {
+            int[] currStart = startPosList.poll();
+            if (drawing[currStart[0]][currStart[1]] == 1) {
+                return currStart;
+            }
+        }
+
+        return null;
+    }
+    
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt();
+        int M = sc.nextInt();
+
+        int[][] drawing = new int[N][M];
+        LinkedList<int[]> startPosList = new LinkedList<>();
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                drawing[i][j] = sc.nextInt();
+                if (drawing[i][j] == 1) {
+                    startPosList.add(new int[] {i, j});
+                }
+            }
+        }
+
+        int largestArr = 0;
+        int drawingCount = 0;
+        LinkedList<int[]> queue;
+        while (true) {
+            queue = new LinkedList<>();
+            int[] startPos = findDrawing(drawing, startPosList);
+            int currLargest = 0;
+
+            if (startPos == null) {
+                break;
+            }
+            
+            queue.add(startPos);
+            drawing[startPos[0]][startPos[1]] = 0;
+            currLargest++;
+            drawingCount++;
+
+            while (!queue.isEmpty()) {
+                int[] currPos = queue.poll();
+                int currX = currPos[0];
+                int currY = currPos[1];
+
+                for (int[] currDir : directions) {
+                    int newX = currX + currDir[0];
+                    int newY = currY + currDir[1];
+                    if (newX >= 0 && newX < N && newY >= 0 && newY < M) {
+                        if (drawing[newX][newY] == 1) {
+                            drawing[newX][newY] = 0;
+                            queue.add(new int[] {newX, newY});
+                            currLargest++;
+                        }
+                    }
+                }
+            }
+
+            if (currLargest > largestArr) {
+                largestArr = currLargest;
+            }
+        }
+
+        System.out.println(drawingCount);
+        System.out.println(largestArr);
+    }
+}

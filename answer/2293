@@ -1,0 +1,25 @@
+import java.util.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		int K = sc.nextInt();
+		int[] coins = new int[N];
+		int[] combs = new int[K+1];
+		
+		for (int i = 0; i < N; i++) {
+			coins[i] = sc.nextInt();
+		}
+
+		combs[0] = 1;
+
+		for (int coin : coins) {
+			for (int i = 0; i <= K; i++) {
+				if (i - coin >= 0) combs[i] += combs[i - coin];
+			}
+		}
+		
+		System.out.println(combs[K]);
+	}
+} 

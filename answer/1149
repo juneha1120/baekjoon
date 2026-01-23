@@ -1,0 +1,27 @@
+import java.util.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		int[] currRed = new int[N];
+		int[] currGreen = new int[N];
+		int[] currBlue = new int[N];
+
+		currRed[0] = sc.nextInt();
+		currGreen[0] = sc.nextInt();
+		currBlue[0] = sc.nextInt();
+
+		for (int i = 1; i < N; i++) {
+			int red = sc.nextInt();
+			int green = sc.nextInt();
+			int blue = sc.nextInt();
+
+			currRed[i] = Math.min(currGreen[i-1] + red, currBlue[i-1] + red);
+			currGreen[i] = Math.min(currRed[i-1] + green, currBlue[i-1] + green);
+			currBlue[i] = Math.min(currRed[i-1] + blue, currGreen[i-1] + blue);
+		}
+
+		System.out.println(Math.min(Math.min(currRed[N-1], currGreen[N-1]), currBlue[N-1]));
+	}
+}

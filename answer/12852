@@ -1,0 +1,39 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {	
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+
+		int[][] dp = new int[N+1][2];
+		dp[1][0] = 0;
+
+		for (int i = 2; i <= N; i++) {
+			int minusOne = dp[i-1][0] + 1;
+			int divideByTwo = (i%2 == 0) ? dp[i/2][0] + 1 : Integer.MAX_VALUE;
+			int divideByThree = (i%3 == 0) ? dp[i/3][0] + 1 : Integer.MAX_VALUE;
+
+			if (minusOne <= divideByTwo && minusOne <= divideByThree) {
+				dp[i][0] = minusOne;
+				dp[i][1] = i-1;
+			} else if (divideByTwo <= minusOne && divideByTwo <= divideByThree) {
+				dp[i][0] = divideByTwo;
+				dp[i][1] = i/2;
+			} else {
+				dp[i][0] = divideByThree;
+				dp[i][1] = i/3;
+			}
+		}
+
+		System.out.println(dp[N][0]);
+
+		int curr = N;
+		while (true) {
+			System.out.print(curr + " ");
+			if (curr == 1) break;
+			
+			curr = dp[curr][1];
+		}
+	}
+}

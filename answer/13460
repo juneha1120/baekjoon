@@ -1,0 +1,153 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+	static char WALL = '#', EMPTY = '.', RED = 'R', BLUE = 'B', HOLE = 'O';
+	static int RED_NUM = 0, BLUE_NUM = 1;
+	static int UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3;
+	static int CANNOT_MOVE = 0, HIT_WALL = 1, ESCAPE = 2, HIT_BALL = 3, FAIL = 4; 
+	
+	static class Board {
+		int rows;
+		int cols;
+		char[][] boardArr;
+		static int[][] moves = new int[][] { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+
+		public Board (int rows, int cols, char[][] boardArr) {
+			this.rows = rows;
+			this.cols = cols;
+			this.boardArr = boardArr;
+		}
+
+		public char getFirstToMove (int dir, int redRow, int redCol, int blueRow, int blueCol) {
+			if (dir == UP) { return (redRow < blueRow) ? RED : BLUE; } 
+			else if (dir == DOWN) { return (redRow > blueRow) ? RED : BLUE; } 
+			else if (dir == LEFT) { return (redCol < blueCol) ? RED : BLUE; } 
+			else { return (redCol > blueCol) ? RED : BLUE; }
+		}
+
+		public int[] checkMove (int dir, char ball, int redRow, int redCol, int blueRow, int blueCol) {
+			int curRow = (ball == RED) ? redRow : blueRow;
+			int curCol = (ball == RED) ? redCol : blueCol;
+			int newRow = curRow + moves[dir][0];
+			int newCol = curCol + moves[dir][1];
+
+			if (this.boardArr[newRow][newCol] == WALL) {
+				return new int[] {curRow, curCol, CANNOT_MOVE};
+			}
+
+			while (true) {
+				if (this.boardArr[newRow][newCol] == WALL) { 
+					return new int[] {curRow, curCol, HIT_WALL}; 
+				} else if (ball == RED && this.boardArr[newRow][newCol] == HOLE) { 
+					return new int[] {-1, -1, ESCAPE}; 
+				} else if (ball == BLUE && this.boardArr[newRow][newCol] == HOLE) { 
+					return new int[] {-1, -1, FAIL};
+				} else if (newRow == ((ball == RED) ? blueRow : redRow) && newCol == ((ball == RED) ? blueCol : redCol)) {						return new int[] {curRow, curCol, HIT_BALL};
+				} else {
+					curRow = newRow;
+					curCol = newCol;
+					newRow += moves[dir][0];
+					newCol += moves[dir][1];
+				}
+			}
+		}
+	}
+
+	public static void main (String[] args)  {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		int M = sc.nextInt();
+		sc.nextLine();
+
+		int[] startPos = new int[4];
+		char[][] boardArr = new char[N][M];
+
+		for (int i = 0; i < N; i++) {
+			char[] line = sc.nextLine().toCharArray();
+			for (int j = 0; j < M; j++) {
+				if (line[j] == RED) {
+					startPos[0] = i;
+					startPos[1] = j;
+					boardArr[i][j] = EMPTY;
+				} else if (line[j] == BLUE) {
+					startPos[2] = i;
+					startPos[3] = j;
+					boardArr[i][j] = EMPTY;
+				} else {
+					boardArr[i][j] = line[j];
+				}
+			}
+		}
+
+		sc.close();
+		Board board = new Board(N, M, boardArr);
+
+		Comparator<int[]> countComparator = Comparator.comparingInt(state -> state[4]);
+		PriorityQueue<int[]> queue = new PriorityQueue<>(countComparator);
+		queue.add(new int[] {startPos[0], startPos[1], startPos[2], startPos[3], 0});
+
+		boolean[][][][] visited = new boolean[board.rows][board.cols][board.rows][board.cols]; 
+
+
+		while (!queue.isEmpty()) {
+			int[] curState = queue.poll();
+			int redRow = curState[0];
+			int redCol = curState[1];
+			int blueRow = curState[2];
+			int blueCol = curState[3];
+			int count = curState[4];
+
+			if (visited[redRow][redCol][blueRow][blueCol]) {
+				continue;
+			}
+
+			visited[redRow][redCol][blueRow][blueCol] = true;
+
+			if (count > 10) {
+				continue;
+			}
+
+			for (int i = 0; i < 4; i++) {
+				// String dir = (i == 0) ? "UP" : (i == 1) ? "DOWN" : (i == 2) ? "LEFT" : "RIGHT";
+				// Map<Integer, String> results = new HashMap<>();
+				// results.put(0,"CANNOT_MOVE");
+				// results.put(1,"HIT_WALL"); 
+				// results.put(2,"ESCAPE"); 
+				// results.put(3,"HIT_BALL");
+				// results.put(4,"FAIL");
+				// System.out.printf("For Red at {%d, %d} and Blue at {%d, %d} with count = %d, checking %s\n", redRow, redCol, blueRow, blueCol, count, dir);
+				char first = board.getFirstToMove(i, redRow, redCol, blueRow, blueCol);
+				char second = (first == RED) ? BLUE : RED;
+
+				int[] firstPos = board.checkMove(i, first, redRow, redCol, blueRow, blueCol);
+				int newFirstRow = firstPos[0];
+				int newFirstCol = firstPos[1];
+				int firstResult = firstPos[2];
+				// System.out.printf("Checking %s first, result = %s\n", (first == RED) ? "RED" : "BLUE", results.get(firstResult));
+
+				int[] secondPos = (first == RED) ? board.checkMove(i, second, newFirstRow, newFirstCol, blueRow, blueCol)
+												 : board.checkMove(i, second, redRow, redCol, newFirstRow, newFirstCol);
+				int newSecondRow = secondPos[0];
+				int newSecondCol = secondPos[1];
+				int secondResult = secondPos[2];
+				// System.out.printf("Checking %s next, result = %s\n", (first == RED) ? "BLUE" : "RED", results.get(secondResult));
+
+				if (firstResult == FAIL || secondResult == FAIL) {
+					continue;
+				} else if (firstResult == ESCAPE || secondResult == ESCAPE) {
+					System.out.println((count + 1) <= 10 ? count + 1 : -1);
+					return;
+				} else if (firstResult == HIT_WALL || secondResult == HIT_WALL || secondResult == HIT_BALL) {
+					queue.add((first == RED) ? new int[] {newFirstRow, newFirstCol, newSecondRow, newSecondCol, count + 1}
+							 				 : new int[] {newSecondRow, newSecondCol, newFirstRow, newFirstCol, count + 1});
+				} else {
+					continue;
+				}
+			}
+		}
+
+		System.out.print(-1);
+		return;
+	}
+}

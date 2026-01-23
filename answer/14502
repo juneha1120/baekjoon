@@ -1,0 +1,114 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+	public static int N, M;
+	public static int EMPTY = 0, WALL = 1, VIRUS = 2;
+	public static int[][] moves = new int[][] {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+	public static int[][] copyLab(int[][] lab) {
+		int[][] copy = new int[N][M];
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				copy[i][j] = lab[i][j];
+			}
+		}
+		return copy;
+	}
+
+	public static void placeWall(int[][] lab, int[] wall1, int[] wall2, int[] wall3) {
+		lab[wall1[0]][wall1[1]] = WALL;
+		lab[wall2[0]][wall2[1]] = WALL;
+		lab[wall3[0]][wall3[1]] = WALL;
+	}
+
+	public static void simulate(int[][] lab, int[] virus) {
+		Queue<int[]> queue = new LinkedList<>();
+		queue.add(virus);
+
+		while (!queue.isEmpty()) {
+			int[] currPos = queue.poll();
+			int currRow = currPos[0];
+			int currCol = currPos[1];
+
+			for (int i = 0; i < 4; i++) {
+				int newRow = currRow + moves[i][0];
+				int newCol = currCol + moves[i][1];
+
+				if (N > newRow && newRow >= 0 && M > newCol && newCol >= 0 && lab[newRow][newCol] == EMPTY) {
+					lab[newRow][newCol] = VIRUS;
+					queue.add(new int[] {newRow, newCol});
+				}
+			}
+		}
+	}
+
+	public static int countSafe(int[][] lab) {
+		int count = 0;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				if (lab[i][j] == EMPTY) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
+  	public static void main(String[] args) {
+    	Scanner sc = new Scanner(System.in);
+		N = sc.nextInt();
+		M = sc.nextInt();
+		int[][] lab = new int[N][M];
+		List<int[]> empties = new ArrayList<>();
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				lab[i][j] = sc.nextInt();
+				if (lab[i][j] == EMPTY) {
+					empties.add(new int[] {i, j});
+				}
+			}
+		}
+		sc.close();
+
+		int maxSafe = 0;
+		for (int i = 0; i < empties.size()-2; i++) {
+			for (int j = i+1; j < empties.size()-1; j++) {
+				for (int k = j+1; k < empties.size(); k++) {
+					int[][] currLab = copyLab(lab);
+					
+					// for (int a = 0; a < N; a++) {
+					// 	for (int b = 0; b < M; b++) {
+					// 		System.out.print(currLab[a][b] + " ");
+					// 	}
+					// 	System.out.println();
+					// }
+					
+					int[] wall1 = empties.get(i);
+					// System.out.printf("{%d, %d} is wall1\n", wall1[0], wall1[1]);
+					int[] wall2 = empties.get(j);
+					// System.out.printf("{%d, %d} is wall2\n", wall2[0], wall2[1]);
+					int[] wall3 = empties.get(k);
+					// System.out.printf("{%d, %d} is wall3\n", wall3[0], wall3[1]);
+
+					placeWall(currLab, wall1, wall2, wall3);
+					for (int l = 0; l < N; l++) {
+						for (int m = 0; m < M; m++) {
+							if (currLab[l][m] == VIRUS) {
+								simulate(currLab, new int[] {l, m});
+							}
+						}
+					}
+
+					int currMax = countSafe(currLab);
+					if (currMax > maxSafe) {
+						maxSafe = currMax;
+					}
+				}
+			}
+		}
+
+		System.out.println(maxSafe);
+  	}
+}

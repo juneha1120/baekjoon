@@ -1,0 +1,98 @@
+import java.util.*;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		int[] wines = new int[N+1];
+		int[] dp = new int[N+1];
+
+		for (int i = 1; i < N+1; i++) {
+			wines[i] = sc.nextInt();
+		}
+
+		if (N == 1) {
+			System.out.println(wines[1]);
+			return;
+		}
+
+		dp[1] = wines[1];
+		dp[2] = wines[1] + wines[2];
+		for (int i = 3; i <= N; i++) {
+			dp[i] = Math.max(dp[i-1], 
+					Math.max(dp[i-2] + wines[i],
+							 dp[i-3] + wines[i-1] + wines[i]));
+		}
+
+		System.out.println(dp[N]);
+	}
+}
+
+// public class Main {
+// 	public static void main(String[] args) {
+// 		Scanner sc = new Scanner(System.in);
+// 		int input = sc.nextInt();
+// 		int N = (input%2 == 0) ? input+1 : input;
+// 		int[] wines = new int[N];
+// 		int[] drunkStart = new int[N];
+// 		int[] drunkEnd = new int[N];
+// 		int[] drunkFirst = new int[N];
+// 		int[] drunkSecond = new int[N];
+// 		int[] notDrunk = new int[N];
+
+// 		for (int i = 0; i < input; i++) {
+// 			wines[i] = sc.nextInt();
+// 		}
+
+// 		if (input%2 == 0) {
+// 			wines[N-1] = 0;
+// 		} else if (N == 1) {
+// 			System.out.println(wines[0]);
+// 			return;
+// 		}
+
+// 		drunkStart[0] = wines[0] + wines[1];
+// 		drunkEnd[0] = wines[0];
+// 		drunkFirst[0] = wines[0];
+// 		drunkSecond[0] = wines[1];
+// 		notDrunk[0] = wines[0];
+
+// 		for (int i = 2; i < N; i += 2) {
+// 			if (i+1 <= N-1) {
+// 				drunkStart[i] = Math.max(drunkEnd[i-2] + wines[i] + wines[i+1], 
+// 								Math.max(drunkFirst[i-2] + wines[i] + wines[i+1],
+// 									 	 notDrunk[i-2] + wines[i] + wines[i+1]));
+// 			}
+			
+// 			drunkEnd[i] = drunkSecond[i-2] + wines[i];
+
+// 			drunkFirst[i] = Math.max(drunkEnd[i-2] + wines[i], 
+// 							Math.max(drunkFirst[i-2] + wines[i],
+// 							 		 notDrunk[i-2] + wines[i]));
+
+// 			if (i+1 <= N-1) {
+// 				drunkSecond[i] = Math.max(drunkStart[i-2] + wines[i+1], 
+// 								 Math.max(drunkEnd[i-2] + wines[i+1], 
+// 								 Math.max(drunkFirst[i-2] + wines[i+1],
+// 										  drunkSecond[i-2] + wines[i+1])));
+// 			}
+
+// 			notDrunk[i] = Math.max(drunkStart[i-2], 
+// 					 	  Math.max(drunkEnd[i-2], 
+// 					 	  Math.max(drunkFirst[i-2],
+// 							       drunkSecond[i-2])));
+
+// 			// System.out.println(i + " : drunkStart = " + drunkStart[i]);
+// 			// System.out.println(i + " : drunkEnd = " + drunkEnd[i]);
+// 			// System.out.println(i + " : drunkFirst = " + drunkFirst[i]);
+// 			// System.out.println(i + " : drunkSecond = " + drunkSecond[i]);
+// 			// System.out.println(i + " : notDrunk = " + notDrunk[i]);
+// 		}
+
+// 		System.out.println(Math.max(drunkStart[N-1], 
+// 						   Math.max(drunkEnd[N-1], 
+// 						   Math.max(drunkFirst[N-1],
+// 						   Math.max(drunkSecond[N-1],
+// 								    notDrunk[N-1])))));
+// 	}
+// }

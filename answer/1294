@@ -1,0 +1,67 @@
+import java.util.*;
+
+public class Main {	
+	public static String merge(String strA, String strB) {
+		StringBuilder result = new StringBuilder();
+		int indA = 0, indB = 0;
+
+		while (indA < strA.length() && indB < strB.length()) {
+			if (strA.charAt(indA) < strB.charAt(indB)) result.append(strA.charAt(indA++));
+			else if (strA.charAt(indA) > strB.charAt(indB)) result.append(strB.charAt(indB++));
+			else {
+				int tempA = indA;
+				int tempB = indB;
+
+				while (tempA < strA.length() && tempB < strB.length()) {
+					if (strA.charAt(tempA) < strB.charAt(tempB)) {
+						result.append(strA.charAt(indA));
+						indA++;
+						break;
+					} else if (strA.charAt(tempA) > strB.charAt(tempB)) {
+						result.append(strB.charAt(indB));
+						indB++;
+						break;
+					} else if (tempB == strB.length()-1) {
+						result.append(strA.charAt(indA));
+						indA++;
+						break;
+					} else if (tempA == strA.length()-1) {
+						result.append(strB.charAt(indB));
+						indB++;
+						break;
+					} else {
+						tempA++;
+						tempB++;
+					}
+				}				
+			}
+		}
+
+		while (indA < strA.length()) {
+			result.append(strA.charAt(indA++));
+		}
+
+		while (indB < strB.length()) {
+			result.append(strB.charAt(indB++));
+		}
+
+		return result.toString();
+	}
+	
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int N = sc.nextInt();
+		sc.nextLine();
+
+		String strA = "";
+		String strB = "";
+		
+		for (int i = 0; i < N; i++) {
+			strB = sc.nextLine();
+			strA = merge(strA, strB);
+			// System.out.println(strA);
+		}
+
+		System.out.println(strA);
+	}
+}
